@@ -17,7 +17,23 @@
       "Bash(python -m pytest:*)",
       "Bash(python3 -m pytest:*)",
       "WebFetch(domain:docs.anthropic.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/final-verification.sh:*)",
+      "Bash(pip install:*)",
+      "Bash(./scripts/quality-check.sh:*)",
+      "Bash(python3:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm install:*)",
+      "Bash(./scripts/simple-verification.sh:*)",
+      "Bash(./fix-dependencies.sh:*)",
+      "Bash(npm run dev:*)",
+      "Bash(yarn install:*)",
+      "Bash(./venv_linux/bin/python3:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)"
     ],
     "deny": []
   }

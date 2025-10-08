@@ -1,0 +1,27 @@
+# 开发环境前端Dockerfile
+FROM node:18-alpine
+
+# 设置工作目录
+WORKDIR /app
+
+# 增加内存限制
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# 复制package文件
+COPY package*.json ./
+
+# 安装依赖，使用npm缓存并增加内存限制
+RUN npm install --prefer-offline --no-audit --no-fund
+
+# 复制源代码
+COPY . .
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5173/health || exit 1
+
+# 暴露端口
+EXPOSE 5173
+
+# 开发模式启动，增加内存限制
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

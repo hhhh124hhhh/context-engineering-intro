@@ -1,0 +1,34 @@
+# 开发环境后端Dockerfile (优化版)
+FROM python:3.11-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 使用国内镜像源加速apt安装
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 配置pip使用国内镜像源
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 安装Python依赖
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 复制应用代码
+COPY . .
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# 暴露端口
+EXPOSE 8000
+
+# 开发模式启动
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

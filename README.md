@@ -38,6 +38,7 @@ cd Context-Engineering-Intro
 - [The PRP Workflow](#the-prp-workflow)
 - [Using Examples Effectively](#using-examples-effectively)
 - [Best Practices](#best-practices)
+- [Case Study: Card Battle Arena](#case-study-card-battle-arena)
 
 ## What is Context Engineering?
 
@@ -289,6 +290,44 @@ examples/
 - Add your conventions
 - Include project-specific rules
 - Define coding standards
+
+## Case Study: Card Battle Arena
+
+### 🎮 Project Overview
+
+The Card Battle Arena project (`card-battle-arena-v2`) is a comprehensive case study demonstrating the power of Context Engineering combined with agent tools and TDD methodology. This project showcases how to build a stable AI programming engineering workflow using modern development practices.
+
+### 🧠 Context Engineering Approach
+
+This project demonstrates how to apply Context Engineering principles in practice:
+- **Comprehensive Documentation**: Detailed game design documents, TDD demonstrations, and technical specifications
+- **Structured Examples**: Well-organized code examples that AI assistants can follow
+- **Clear Rules**: Defined in `CLAUDE.md` for consistent AI behavior
+- **Validation Gates**: Built-in testing requirements to ensure quality
+
+### 🤖 Agent Tools Integration
+
+The project leverages agent tools for enhanced development:
+- **Custom Commands**: Defined in `.claude/commands/` for automated PRP generation and execution
+- **Agent Patterns**: Structured agent implementations in `.claude/agents/` (when populated)
+- **Automated Workflows**: Streamlined development processes using Claude Code capabilities
+
+### 🧪 TDD Methodology Success
+
+The Card Battle Arena V2 project is a prime example of Test-Driven Development (TDD) success:
+- **Red-Green-Refactor Cycle**: Each feature follows the classic TDD approach
+- **High Test Coverage**: 90%+ test coverage with real functional validation
+- **Quality Assurance**: Continuous testing ensures stable, working code
+- **Refactoring Safety**: Tests provide confidence for code improvements
+
+### 🎯 Key Achievements
+
+1. **Stable AI Programming Engineering**: Demonstrates how to create reliable AI-assisted development workflows
+2. **Working Game Engine**: A functional card battle game with complete game mechanics
+3. **Proven TDD Process**: Documented TDD success with measurable results
+4. **Scalable Architecture**: Clean, maintainable code structure following best practices
+
+This case study proves that combining Context Engineering, agent tools, and TDD methodology creates a robust foundation for AI-assisted software development.
 
 ## Resources
 

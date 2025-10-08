@@ -6,6 +6,7 @@
 import asyncio
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 from app.database.postgres import AsyncSessionLocal
 from app.models.card import Card
 
@@ -309,7 +310,7 @@ async def seed_cards():
     async with AsyncSessionLocal() as session:
         try:
             # 检查是否已有卡牌数据
-            existing_count = await session.execute("SELECT COUNT(*) FROM cards")
+            existing_count = await session.execute(text("SELECT COUNT(*) FROM cards"))
             count = existing_count.scalar()
 
             if count > 0:

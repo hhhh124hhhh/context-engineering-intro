@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@stores/authStore'
 import { useUIStore } from '@stores/uiStore'
@@ -67,7 +67,7 @@ export const LoginPage: React.FC = () => {
     setIsSubmitting(true)
 
     try {
-      await login(formData.username, formData.password)
+      await login(formData.username, formData.password, formData.rememberMe)
       addNotification('success', '登录成功！')
 
       // 如果设置了记住我，保存用户名
@@ -82,15 +82,16 @@ export const LoginPage: React.FC = () => {
       navigate(redirectPath, { replace: true })
     } catch (error: any) {
       // 错误已经在store中处理，这里不需要额外处理
+      console.error('登录页面错误:', error)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   // 组件挂载时加载记住的用户名
-  React.useEffect(() => {
+  useEffect(() => {
     const rememberedUsername = localStorage.getItem('remembered_username')
-    if (rememberUsername) {
+    if (rememberedUsername) {
       setFormData(prev => ({
         ...prev,
         username: rememberedUsername,

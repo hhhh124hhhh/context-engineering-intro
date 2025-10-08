@@ -5,14 +5,30 @@ class AuthService {
   private token: string | null = null
 
   // 登录
-  async login(username: string, password: string): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', {
-      username,
-      password
-    })
+  async login(usernameOrEmail: string, password: string, rememberMe: boolean = false): Promise<AuthResponse> {
+    try {
+      console.log('🔐 开始登录流程:', { usernameOrEmail, rememberMe })
 
-    this.token = response.access_token
-    return response
+      const response = await apiClient.post<AuthResponse>('/auth/login', {
+        username_or_email: usernameOrEmail,
+        password,
+        remember_me: rememberMe
+      })
+
+      console.log('✅ 登录响应:', {
+        hasAccessToken: !!response.access_token,
+        hasRefreshToken: !!response.refresh_token,
+        tokenType: response.token_type,
+        expiresIn: response.expires_in,
+        hasUser: !!response.user
+      })
+
+      this.token = response.access_token
+      return response
+    } catch (error) {
+      console.error('❌ 登录失败:', error)
+      throw error
+    }
   }
 
   // 注册
@@ -27,12 +43,6 @@ class AuthService {
     return response
   }
 
-  // 获取当前用户信息
-  async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get<User>('/users/me')
-    return response
-  }
-
   // 更新用户信息
   async updateUser(userData: Partial<User>): Promise<User> {
     const response = await apiClient.put<User>('/users/me', userData)
@@ -40,13 +50,28 @@ class AuthService {
   }
 
   // 刷新token
-  async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
-    const response = await apiClient.post<{ access_token: string; refresh_token: string }>('/auth/refresh', {
-      refresh_token
-    })
+  async refreshToken(): Promise<AuthResponse> {
+    if (!this.token) {
+      throw new Error('没有可刷新的token')
+    }
 
-    this.token = response.access_token
-    return response
+    try {
+      console.log('🔄 开始刷新token流程')
+
+      const response = await apiClient.post<AuthResponse>('/auth/refresh')
+
+      console.log('✅ 刷新token成功:', {
+        hasAccessToken: !!response.access_token,
+        hasRefreshToken: !!response.refresh_token
+      })
+
+      this.token = response.access_token
+      apiClient.setToken(response.access_token)
+      return response
+    } catch (error) {
+      console.error('❌ 刷新token失败:', error)
+      throw error
+    }
   }
 
   // 登出
@@ -55,6 +80,17 @@ class AuthService {
       await apiClient.post('/auth/logout')
     } finally {
       this.token = null
+    }
+  }
+
+  // 获取当前用户信息
+  async getCurrentUser(): Promise<User | null> {
+    try {
+      const response = await apiClient.get<User>('/users/me')
+      return response
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+      return null
     }
   }
 

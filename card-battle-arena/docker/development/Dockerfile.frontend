@@ -10,8 +10,10 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 # 复制package文件
 COPY package*.json ./
 
-# 安装依赖，使用npm缓存并增加内存限制
-RUN npm install --prefer-offline --no-audit --no-fund
+# 清理可能存在的node_modules并安装依赖
+RUN rm -rf node_modules && \
+    npm install --prefer-offline --no-audit --no-fund && \
+    npm install -g http-server
 
 # 复制源代码
 COPY . .
@@ -23,5 +25,8 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 # 暴露端口
 EXPOSE 5173
 
-# 开发模式启动，增加内存限制
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# 构建前端应用
+RUN npm run build
+
+# 简单的HTTP服务器启动，用于测试
+CMD ["http-server", "dist", "-p", "5173"]

@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # PostgreSQL数据库
   postgres:
@@ -48,13 +50,7 @@ services:
       - ./backend:/app
     networks:
       - card-battle-network
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-        reservations:
-          memory: 1G
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
 
   # 前端应用
   frontend:
@@ -71,16 +67,10 @@ services:
       - backend
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      # 移除 /app/node_modules 挂载以避免冲突
     networks:
       - card-battle-network
     command: npm run dev
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 2G
 
   # Nginx反向代理 (生产环境)
   nginx:

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { User } from '@types/auth'
 import { authService } from '@services/authService'
+import { getErrorMessage } from '@utils/errorFilter'
 
 interface AuthState {
   // 状态
@@ -48,7 +49,8 @@ export const useAuthStore = create<AuthState>()(
           // 设置token到API客户端
           authService.setToken(response.access_token)
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '登录失败'
+          const errorMessage = getErrorMessage(error)
+          console.error('登录失败:', error)
           set({
             error: errorMessage,
             isLoading: false,
@@ -110,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
           const { token } = get()
           if (!token) return
 
-          const response = await authService.refreshToken(token)
+          const response = await authService.refreshToken()
 
           set({
             token: response.access_token,
@@ -120,6 +122,7 @@ export const useAuthStore = create<AuthState>()(
           // 更新API客户端token
           authService.setToken(response.access_token)
         } catch (error) {
+          console.error('认证存储刷新token失败:', error)
           // 刷新失败，直接登出
           get().logout()
           throw error

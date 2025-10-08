@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@stores/authStore'
-import { useGameStore } from '@stores/gameStore'
+import { useLobbyStore } from '@stores/lobbyStore'
 import { useUIStore } from '@stores/uiStore'
 import { Button } from '@components/ui/Button'
 import { ErrorBoundary } from '@components/ui/ErrorBoundary'
@@ -23,7 +23,6 @@ interface GameMode {
   description: string
   playerCount: string
   avgWaitTime: string
-  icon: React.ComponentType<any>
   isRecommended?: boolean
 }
 
@@ -35,18 +34,25 @@ interface OnlinePlayer {
   avatar?: string
 }
 
+interface MatchStatus {
+  status: 'idle' | 'searching' | 'found' | 'cancelled'
+  queuePosition?: number
+  estimatedWaitTime?: number
+  found?: boolean
+}
+
 export const LobbyPage: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const {
     findMatch,
     cancelMatchmaking,
-    matchStatus,
-    setMatchStatus,
     getGameModes,
     getOnlinePlayers
-  } = useGameStore()
+  } = useLobbyStore()
   const { addNotification } = useUIStore()
+  
+  const [matchStatus, setMatchStatus] = useState<MatchStatus | null>(null)
 
   const [selectedMode, setSelectedMode] = useState<string>('ranked')
   const [gameModes, setGameModes] = useState<GameMode[]>([])
@@ -71,7 +77,6 @@ export const LobbyPage: React.FC = () => {
             description: '天梯排位赛，影响您的段位和排名',
             playerCount: '1v1',
             avgWaitTime: '约2分钟',
-            icon: TrophyIcon,
             isRecommended: true
           },
           {
@@ -79,16 +84,14 @@ export const LobbyPage: React.FC = () => {
             name: '休闲对战',
             description: '轻松的对战，不影响天梯排名',
             playerCount: '1v1',
-            avgWaitTime: '约1分钟',
-            icon: PlayIcon
+            avgWaitTime: '约1分钟'
           },
           {
             id: 'practice',
             name: '练习模式',
             description: '与AI对战，熟悉卡牌和策略',
             playerCount: '1v0',
-            avgWaitTime: '立即开始',
-            icon: Cog6ToothIcon
+            avgWaitTime: '立即开始'
           }
         ])
       }
@@ -255,7 +258,22 @@ export const LobbyPage: React.FC = () => {
             <h2 className="text-xl font-semibold text-white mb-4">选择游戏模式</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {gameModes.map((mode) => {
-                const Icon = mode.icon
+                // 根据模式ID选择图标
+                let IconComponent;
+                switch (mode.id) {
+                  case 'ranked':
+                    IconComponent = TrophyIcon;
+                    break;
+                  case 'casual':
+                    IconComponent = PlayIcon;
+                    break;
+                  case 'practice':
+                    IconComponent = Cog6ToothIcon;
+                    break;
+                  default:
+                    IconComponent = StarIcon;
+                }
+                
                 return (
                   <div
                     key={mode.id}
@@ -275,7 +293,7 @@ export const LobbyPage: React.FC = () => {
                     )}
 
                     <div className="flex items-center space-x-3 mb-3">
-                      <Icon className="h-8 w-8 text-primary-400" />
+                      <IconComponent className="h-8 w-8 text-primary-400" />
                       <h3 className="text-lg font-semibold text-white">
                         {mode.name}
                       </h3>

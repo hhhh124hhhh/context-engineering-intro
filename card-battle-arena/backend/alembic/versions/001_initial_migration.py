@@ -57,6 +57,27 @@ def upgrade() -> None:
     op.create_index('idx_users_last_login', 'users', ['last_login_at'], unique=False)
     op.create_index('idx_users_online', 'users', ['is_online', 'last_login_at'], unique=False)
 
+    # Create user_sessions table (IMPORTANT - this was missing!)
+    op.create_table('user_sessions',
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('user_id', sa.Integer(), nullable=False),
+        sa.Column('session_token', sa.String(length=255), nullable=False),
+        sa.Column('refresh_token', sa.String(length=255), nullable=False),
+        sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('last_used_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+        sa.Column('ip_address', sa.String(length=45), nullable=True),
+        sa.Column('user_agent', sa.Text(), nullable=True),
+        sa.Column('is_active', sa.Boolean(), nullable=False),
+        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+        sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index('idx_user_sessions_expires_at', 'user_sessions', ['expires_at'], unique=False)
+    op.create_index('idx_user_sessions_last_used', 'user_sessions', ['last_used_at'], unique=False)
+    op.create_index('idx_user_sessions_user_token', 'user_sessions', ['user_id', 'session_token'], unique=False)
+    op.create_index(op.f('ix_user_sessions_session_token'), 'user_sessions', ['session_token'], unique=True)
+    op.create_index(op.f('ix_user_sessions_refresh_token'), 'user_sessions', ['refresh_token'], unique=True)
+
     # Create friendships table
     op.create_table('friendships',
         sa.Column('id', sa.Integer(), nullable=False),
@@ -191,4 +212,5 @@ def downgrade() -> None:
     op.drop_table('decks')
     op.drop_table('cards')
     op.drop_table('friendships')
+    op.drop_table('user_sessions')  # Don't forget to drop user_sessions!
     op.drop_table('users')

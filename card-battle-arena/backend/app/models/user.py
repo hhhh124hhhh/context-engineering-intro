@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Numeric, Index
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, Numeric, Index, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database.postgres import Base
+from app.models.deck import Deck
 
 
 class User(Base):
@@ -48,9 +49,9 @@ class User(Base):
     # 关系
     decks = relationship("Deck", back_populates="user", cascade="all, delete-orphan")
     game_players = relationship("GamePlayer", back_populates="user")
-    sent_friendships = relationship("Friendship", foreign_keys="Friendship.sender_id", back_populates="sender")
-    received_friendships = relationship("Friendship", foreign_keys="Friendship.receiver_id", back_populates="receiver")
-    chat_messages = relationship("ChatMessage", back_populates="sender")
+    sent_friendships = relationship("Friendship", foreign_keys="[Friendship.sender_id]", back_populates="sender")
+    received_friendships = relationship("Friendship", foreign_keys="[Friendship.receiver_id]", back_populates="receiver")
+    chat_messages = relationship("ChatMessage", foreign_keys="[ChatMessage.sender_id]", back_populates="sender")
 
     # 索引
     __table_args__ = (
@@ -86,8 +87,8 @@ class Friendship(Base):
     __tablename__ = "friendships"
 
     id = Column(Integer, primary_key=True, index=True)
-    sender_id = Column(Integer, nullable=False, index=True)
-    receiver_id = Column(Integer, nullable=False, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     status = Column(String(20), default="pending", nullable=False)  # pending, accepted, blocked
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
@@ -111,7 +112,7 @@ class UserAchievement(Base):
     __tablename__ = "user_achievements"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     achievement_id = Column(String(50), nullable=False, index=True)
     unlocked_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     progress = Column(Integer, default=0, nullable=False)
@@ -134,7 +135,7 @@ class UserSession(Base):
     __tablename__ = "user_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     session_token = Column(String(255), unique=True, nullable=False, index=True)
     refresh_token = Column(String(255), unique=True, nullable=False, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)

@@ -7,8 +7,8 @@ import {
   UserGroupIcon,
   DocumentTextIcon,
   UserIcon,
-  LoginIcon,
-  LogoutIcon,
+  ArrowRightOnRectangleIcon,
+  ArrowLeftOnRectangleIcon,
   Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
                 to="/login"
                 className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
               >
-                <LoginIcon className="h-5 w-5" />
+                <ArrowRightOnRectangleIcon className="h-5 w-5" />
                 <span>登录</span>
               </Link>
               <Link
@@ -151,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={handleLogout}
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
                 >
-                  <LogoutIcon className="h-5 w-5" />
+                  <ArrowLeftOnRectangleIcon className="h-5 w-5" />
                   <span className="hidden sm:block">登出</span>
                 </button>
               </>
@@ -162,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({
                   to="/login"
                   className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 transition-colors duration-200"
                 >
-                  <LoginIcon className="h-4 w-4" />
+                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
                   <span>登录</span>
                 </Link>
                 <Link

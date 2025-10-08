@@ -298,7 +298,8 @@ class ChatMessage(Base):
 
     # 关系
     game = relationship("Game", back_populates="chat_messages")
-    sender = relationship("User", back_populates="chat_messages")
+    sender = relationship("User", foreign_keys=[sender_id], back_populates="chat_messages")
+    receiver = relationship("User", foreign_keys=[receiver_id])
 
     # 索引
     __table_args__ = (

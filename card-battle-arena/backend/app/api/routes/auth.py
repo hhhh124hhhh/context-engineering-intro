@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from typing import Optional
 import structlog
+from datetime import datetime, timedelta
+
+from app.models.user import User, UserSession, UserAchievement
+from app.models.deck import Deck
 
 from app.database.postgres import get_db
 from app.models.user import User, UserSession
@@ -137,9 +141,9 @@ async def login(
             )
 
         # 创建访问令牌
-        access_token_expires = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         if user_credentials.remember_me:
-            access_token_expires = 7 * 24 * 60 * 60  # 7天
+            access_token_expires = timedelta(days=7)  # 7天
 
         access_token = create_access_token(
             subject=db_user.id,
@@ -148,24 +152,37 @@ async def login(
         refresh_token = create_refresh_token(subject=db_user.id)
 
         # 创建会话记录
+        session_expires_seconds = 7 * 24 * 60 * 60 if user_credentials.remember_me else 24 * 60 * 60
         session = UserSession(
             user_id=db_user.id,
             session_token=generate_session_token(),
             refresh_token=refresh_token,
-            expires_at=datetime.utcnow() + timedelta(days=7 if user_credentials.remember_me else 1),
+            expires_at=datetime.utcnow() + timedelta(seconds=session_expires_seconds),
             ip_address=get_client_ip(request),
             user_agent=request.headers.get("user-agent")
         )
         db.add(session)
-        await db.commit()
+        try:
+            await db.commit()
+        except Exception as db_error:
+            logger.error("Failed to commit session to database", user_id=db_user.id, error=str(db_error))
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="会话创建失败，请稍后重试"
+            )
 
-        # 缓存用户会话
-        cache_service = await get_game_cache_service()
-        await cache_service.cache_user_session(db_user.id, {
-            "session_id": session.id,
-            "ip_address": session.ip_address,
-            "login_time": session.created_at.isoformat()
-        })
+        # 缓存用户会话（非关键操作，失败不影响登录）
+        try:
+            cache_service = await get_game_cache_service()
+            cache_service.cache_user_session(db_user.id, {
+                "session_id": session.id,
+                "ip_address": session.ip_address,
+                "login_time": session.created_at.isoformat()
+            })
+        except Exception as e:
+            # 缓存失败不影响登录流程，只记录日志
+            logger.warning("Failed to cache user session", user_id=db_user.id, error=str(e))
 
         logger.info("User logged in successfully", user_id=db_user.id, ip_address=get_client_ip(request))
 
@@ -173,13 +190,14 @@ async def login(
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
-            "expires_in": access_token_expires
+            "expires_in": access_token_expires.total_seconds()
         }
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Login failed", error=str(e))
+        logger.error("Login failed", error=str(e), exc_info=True)
+        # 不暴露具体错误信息给客户端，防止信息泄露
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="登录失败，请稍后重试"
@@ -267,9 +285,13 @@ async def logout(
         )
         await db.commit()
 
-        # 清除缓存
-        cache_service = await get_game_cache_service()
-        await cache_service.delete(f"session:{current_user.id}")
+        # 清除缓存（非关键操作，失败不影响登出）
+        try:
+            cache_service = await get_game_cache_service()
+            cache_service.redis.delete(f"session:{current_user.id}")
+        except Exception as e:
+            # 缓存清理失败不影响登出流程，只记录日志
+            logger.warning("Failed to clear user session cache", user_id=current_user.id, error=str(e))
 
         logger.info("User logged out successfully", user_id=current_user.id)
         return {"message": "登出成功"}
@@ -583,7 +605,7 @@ async def get_user_profile(
 
 
 # 邮件发送函数（占位符，需要实际实现）
-async def send_verification_email(email: str, token: str, ip_address: str = None):
+async def send_verification_email(email: str, token: str, ip_address: Optional[str] = None):
     """发送邮箱验证邮件"""
     # 这里应该实现实际的邮件发送逻辑
     logger.info("Verification email sent", email=email, token=token[:10] + "...", ip_address=ip_address)

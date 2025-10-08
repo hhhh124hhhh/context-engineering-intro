@@ -2,28 +2,42 @@ export interface User {
   id: number
   username: string
   email: string
-  rating: number
-  avatar?: string
+  elo_rating: number
+  level: number
+  experience: number
+  coins: number
+  display_name?: string
+  avatar_url?: string
+  bio?: string
+  country?: string
+  is_active: boolean
+  is_verified: boolean
   is_online: boolean
-  last_login: string
+  games_played: number
+  games_won: number
+  games_lost: number
+  win_streak: number
+  best_win_streak: number
   created_at: string
-  stats: UserStats
+  last_login_at?: string
 }
 
 export interface UserStats {
   games_played: number
-  wins: number
-  losses: number
-  draws: number
+  games_won: number
+  games_lost: number
   win_rate: number
-  current_streak: number
-  best_streak: number
-  favorite_class: string
+  current_win_streak: number
+  best_win_streak: number
+  favorite_class?: string
+  average_game_duration?: number
+  total_play_time: number
 }
 
 export interface LoginRequest {
-  username: string
+  username_or_email: string
   password: string
+  remember_me?: boolean
 }
 
 export interface RegisterRequest {

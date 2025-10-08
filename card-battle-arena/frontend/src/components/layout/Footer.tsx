@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   GlobeAltIcon,
-  GithubIcon,
+  CodeBracketIcon,
   EnvelopeIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline'
@@ -123,7 +123,7 @@ export const Footer: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <GithubIcon className="h-5 w-5" />
+                <CodeBracketIcon className="h-5 w-5" />
               </a>
               <a
                 href="mailto:support@cardbattle.arena"

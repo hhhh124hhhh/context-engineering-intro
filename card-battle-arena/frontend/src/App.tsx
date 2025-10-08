@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
+import { initializeAuth } from '@/stores/authStore'
 import { HomePage } from '@/pages/HomePage'
 import { LobbyPage } from '@/pages/LobbyPage'
 import { GamePage } from '@/pages/GamePage'
@@ -16,9 +17,22 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { PublicRoute } from '@/components/auth/PublicRoute'
 import { LoadingScreen } from '@/components/ui/LoadingScreen'
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { createFilteredConsole } from '@/utils/errorFilter'
 
 function App() {
   const { isAuthenticated, isLoading } = useAuthStore()
+
+  // 初始化错误过滤
+  useEffect(() => {
+    const restoreConsole = createFilteredConsole()
+    return restoreConsole
+  }, [])
+
+  // 初始化认证状态
+  useEffect(() => {
+    console.log('🚀 应用启动，开始初始化认证状态')
+    initializeAuth()
+  }, [])
 
   // 显示加载屏幕（但限制最大时间）
   if (isLoading) {

@@ -33,7 +33,21 @@
       "Bash(docker stop:*)",
       "Bash(docker rm:*)",
       "Bash(docker:*)",
-      "Bash(docker-compose:*)"
+      "Bash(docker-compose:*)",
+      "Bash(curl:*)",
+      "Bash(venv/Scripts/python.exe:*)",
+      "Bash(venv/Scripts/python:*)",
+      "Bash(./venv/Scripts/python.exe:*)",
+      "Bash(../venv_linux/bin/python3:*)",
+      "Bash(../venv_linux/bin/pip3 list:*)",
+      "Bash(./venv/bin/python3:*)",
+      "Bash(cd:*)",
+      "Bash(/mnt/d/context-engineering-intro/card-battle-arena/venv_linux/bin/python3:*)",
+      "Bash(/mnt/d/context-engineering-intro/card-battle-arena/venv_linux/bin/python -m pytest /mnt/d/context-engineering-intro/card-battle-arena-v2/backend/tests/test_game_engine.py -v)",
+      "Bash(/mnt/d/context-engineering-intro/card-battle-arena/venv_linux/bin/pip:*)",
+      "Bash(/mnt/d/context-engineering-intro/card-battle-arena/venv_linux/bin/python:*)",
+      "Bash(/mnt/d/context-engineering-intro/card-battle-arena-v2/backend/venv_linux/bin/python3:*)",
+      "Bash(./venv/bin/pip:*)"
     ],
     "deny": []
   }

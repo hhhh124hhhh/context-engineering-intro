@@ -1,0 +1,21 @@
+# WSL2 配置文件
+# 将此文件放在 C:\Users\你的用户名\.wslconfig
+
+[wsl2]
+# 分配4GB内存给WSL2
+memory=4GB
+
+# 分配4个CPU核心
+processors=4
+
+# 创建2GB交换文件
+swap=2GB
+
+# 启用WSL2的实验性功能
+experimental=true
+
+# 网络配置
+networkingMode=mirrored
+
+# 启用WSL调试输出
+debugConsole=true

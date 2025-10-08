@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.database.postgres import init_db
 from app.database.redis import init_redis
 from app.api.routes import auth
-from app.routes import decks, matchmaking
+from app.routes import decks, matchmaking, cards
 from app.core.websocket.manager import websocket_manager, disconnect_all
 from app.core.matchmaking.matcher import matchmaking_engine
 
@@ -95,6 +95,7 @@ if not settings.DEBUG:
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
 # app.include_router(game.router, prefix="/api/game", tags=["game"])
 app.include_router(decks.router, prefix="/api/decks", tags=["decks"])
+app.include_router(cards.router, prefix="/api/cards", tags=["cards"])
 # app.include_router(social.router, prefix="/api/social", tags=["social"])
 app.include_router(matchmaking.router, prefix="/api/matchmaking", tags=["matchmaking"])
 

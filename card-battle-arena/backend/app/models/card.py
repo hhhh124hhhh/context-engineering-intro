@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, JSON, Index
+from sqlalchemy import Column, Integer, String, Text, Numeric, Boolean, JSON, Index, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database.postgres import Base
 
@@ -128,8 +128,8 @@ class UserCardCollection(Base):
     __tablename__ = "user_card_collections"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False, index=True)
-    card_id = Column(Integer, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    card_id = Column(Integer, ForeignKey("cards.id"), nullable=False, index=True)
     normal_count = Column(Integer, default=0, nullable=False)
     golden_count = Column(Integer, default=0, nullable=False)
     crafted_normal = Column(Integer, default=0, nullable=False)

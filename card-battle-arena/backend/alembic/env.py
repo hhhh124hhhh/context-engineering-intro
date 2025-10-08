@@ -16,8 +16,9 @@ from app.models import *  # Import all models
 # access to the values within the .ini file in use.
 config = context.config
 
-# Override the sqlalchemy.url from settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Override the sqlalchemy.url from settings, but convert async URL to sync URL for Alembic
+sync_database_url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+config.set_main_option("sqlalchemy.url", sync_database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

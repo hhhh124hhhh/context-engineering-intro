@@ -104,13 +104,31 @@ class ApiClient {
 
   // 公共方法
   async get<T>(url: string, params?: any): Promise<T> {
-    const response = await this.instance.get(url, { params })
-    return response.data
+    try {
+      console.log(`📡 GET请求: ${this.baseURL}${url}`, { params })
+      const response = await this.instance.get(url, { params })
+      console.log(`✅ GET响应: ${url}`, { status: response.status, hasData: !!response.data })
+      return response.data
+    } catch (error) {
+      console.error(`❌ GET请求失败: ${url}`, error)
+      throw error
+    }
   }
 
   async post<T>(url: string, data?: any): Promise<T> {
-    const response = await this.instance.post(url, data)
-    return response.data
+    try {
+      console.log(`📤 POST请求: ${this.baseURL}${url}`, { data })
+      const response = await this.instance.post(url, data)
+      console.log(`✅ POST响应: ${url}`, { status: response.status, hasData: !!response.data })
+      return response.data
+    } catch (error) {
+      console.error(`❌ POST请求失败: ${url}`, {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      })
+      throw error
+    }
   }
 
   async put<T>(url: string, data?: any): Promise<T> {

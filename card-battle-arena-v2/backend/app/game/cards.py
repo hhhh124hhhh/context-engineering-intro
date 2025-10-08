@@ -129,6 +129,26 @@ def create_basic_card_set() -> List[Card]:
     cards.append(Card(27, "暗影牧师", 4, 3, 5, CardType.MINION, card_draw=2))
     cards.append(Card(28, "元素萨满", 4, 2, 5, CardType.MINION, taunt=True, aura_effect=True))
 
+    # 5费随从
+    cards.append(Card(29, "石拳食人魔", 5, 5, 5, CardType.MINION, charge=True))
+    cards.append(Card(30, "荆棘谷猛禽", 5, 4, 7, CardType.MINION, taunt=True))
+    cards.append(Card(31, "暗影猎手", 5, 3, 6, CardType.MINION, battlecry_damage=3, needs_target=True))
+
+    # 新增5费策略性随从
+    cards.append(Card(32, "圣殿执行者", 5, 6, 6, CardType.MINION, divine_shield=True))
+    cards.append(Card(33, "法力潮汐图腾", 5, 0, 3, CardType.MINION, card_draw=3))
+    cards.append(Card(34, "冰风雪人", 5, 4, 5, CardType.MINION, windfury=True))
+
+    # 6费随从
+    cards.append(Card(35, "火元素", 6, 6, 6, CardType.MINION, battlecry_damage=2, needs_target=True))
+    cards.append(Card(36, "希尔瓦娜斯", 6, 5, 7, CardType.MINION, deathrattle_draw=1))
+    cards.append(Card(37, "炎魔之王", 6, 7, 7, CardType.MINION, taunt=True, charge=True))
+
+    # 新增6费策略性随从
+    cards.append(Card(38, "知识古树", 6, 3, 8, CardType.MINION, card_draw=4))
+    cards.append(Card(39, "阿莱克斯塔萨", 6, 0, 8, CardType.MINION, heal_amount=10, needs_target=True))
+    cards.append(Card(40, "玛里苟斯", 6, 4, 12, CardType.MINION, spell_damage=2))
+
     # 法术卡
     fireball = Card(101, "火球术", 4, 0, 0, CardType.SPELL)
     fireball.damage = 6
@@ -156,6 +176,15 @@ def create_basic_card_set() -> List[Card]:
     arcane_blast.spell_damage = 1  # 法术加成
     cards.append(arcane_blast)
 
+    # 5费法术卡
+    cards.append(Card(106, "烈焰风暴", 5, 0, 0, CardType.SPELL, damage=4))
+    cards.append(Card(107, "神圣新星", 5, 0, 0, CardType.SPELL, damage=3, heal_amount=3))
+
+    # 6费法术卡
+    cards.append(Card(108, "暴风雪", 6, 0, 0, CardType.SPELL, damage=2, needs_target=False))
+    blizzard = cards[-1]
+    blizzard.needs_target = False  # 对所有敌方随从造成伤害
+
     # 武器卡
     dagger = Card(201, "刺客之刃", 1, 1, 2, CardType.WEAPON)
     cards.append(dagger)
@@ -169,6 +198,9 @@ def create_basic_card_set() -> List[Card]:
 
     doomhammer = Card(204, "毁灭之锤", 5, 8, 5, CardType.WEAPON, windfury=True)
     cards.append(doomhammer)
+
+    # 6费武器卡
+    cards.append(Card(205, "霜之哀伤", 6, 5, 3, CardType.WEAPON, deathrattle_draw=2))
 
     return cards
 

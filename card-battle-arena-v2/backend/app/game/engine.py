@@ -97,11 +97,17 @@ class GameEngine:
         # 执行战吼效果
         if card.battlecry_damage > 0 and target:
             target.take_damage(card.battlecry_damage)
+            
+        # 执行治疗效果
+        if card.heal_amount > 0:
+            current.heal(card.heal_amount)
 
         return PlayResult(True, f"Minion {card.name} played")
 
     def _play_spell_card(self, card: Card, target, game: GameState) -> PlayResult:
         """打出法术卡"""
+        current = game.current_player
+        
         # 执行法术效果
         if card.damage > 0 and target:
             if hasattr(target, 'take_damage'):
@@ -110,6 +116,10 @@ class GameEngine:
                 # 如果是Hero对象，直接减少生命值
                 if hasattr(target, 'health'):
                     target.health -= card.damage
+                    
+        # 执行治疗效果
+        if card.heal_amount > 0:
+            current.heal(card.heal_amount)
 
         return PlayResult(True, f"Spell {card.name} cast")
 
@@ -137,6 +147,10 @@ class GameEngine:
 
         if not attacker.can_attack:
             return PlayResult(False, error="Minion cannot attack this turn")
+
+        # 检查潜行机制
+        if hasattr(target, 'stealth') and target.stealth:
+            return PlayResult(False, error="Cannot attack stealth minion")
 
         # 检查嘲讽机制（只对随从攻击有效）
         if hasattr(target, 'health') and hasattr(target, 'taunt'):  # 攻击随从
@@ -206,11 +220,13 @@ class GameEngine:
         if not isinstance(attacker, Card):
             return PlayResult(False, error="Attacker must be a minion")
 
-        # 攻击英雄
-        if hasattr(hero, 'take_damage'):
-            hero.take_damage(attacker.attack)
-        elif hasattr(hero, 'health'):
-            hero.health -= attacker.attack
+        # 确定攻击的是哪个玩家的英雄
+        if hero == game.opponent.hero:
+            # 攻击对手英雄
+            game.opponent.take_damage(attacker.attack)
+        else:
+            # 攻击当前玩家自己的英雄（防御性攻击）
+            game.current_player.take_damage(attacker.attack)
 
         attacker.can_attack = False
 
@@ -226,6 +242,10 @@ class GameEngine:
 
         if not current.weapon:
             return PlayResult(False, error="No weapon equipped")
+
+        # 检查潜行机制
+        if hasattr(target, 'stealth') and target.stealth:
+            return PlayResult(False, error="Cannot attack stealth minion")
 
         # 确定目标是对手玩家还是随从
         if hasattr(target, 'player_id'):  # 是随从

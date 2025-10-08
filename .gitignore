@@ -1,7 +1,42 @@
-venv
-venv_linux
-__pycache__
-.ruff_cache
-.pytest_cache
-# Environment variables
-.env.local
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.gitignore
+.tox/
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+pygame_env/
+.venv/
+.env/
+myenv/
+
+# Project directories
+card-battle-arena/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/

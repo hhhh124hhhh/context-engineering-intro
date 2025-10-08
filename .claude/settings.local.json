@@ -47,7 +47,14 @@
       "Bash(/mnt/d/context-engineering-intro/card-battle-arena/venv_linux/bin/pip:*)",
       "Bash(/mnt/d/context-engineering-intro/card-battle-arena/venv_linux/bin/python:*)",
       "Bash(/mnt/d/context-engineering-intro/card-battle-arena-v2/backend/venv_linux/bin/python3:*)",
-      "Bash(./venv/bin/pip:*)"
+      "Bash(./venv/bin/pip:*)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(sudo apt:*)",
+      "Read(//usr/lib/**)",
+      "Bash(apt:*)",
+      "Bash(wget:*)",
+      "Bash(~/.local/bin/pip:*)",
+      "Bash(~/.local/bin/python3:*)"
     ],
     "deny": []
   }

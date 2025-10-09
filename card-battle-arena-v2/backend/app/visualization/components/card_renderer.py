@@ -6,6 +6,7 @@ import pygame
 from typing import Tuple, Optional
 from app.game.cards import Card
 from app.visualization.design.tokens import DesignTokens
+from app.visualization.font_manager import render_text_safely
 
 
 class CardRenderer:
@@ -120,18 +121,26 @@ class CardRenderer:
                         card: Card, position: Tuple[int, int]) -> None:
         """渲染卡牌名称"""
         x, y = position
-        font = pygame.font.Font(None, 16)
 
         # 截断过长的名称
         display_name = card.name[:10] + "..." if len(card.name) > 10 else card.name
 
         try:
-            text = font.render(display_name, True, self.tokens.COLORS['card']['text'])
-            surface.blit(text, (x + 8, y + 8))
+            text_surface = render_text_safely(display_name, 16, self.tokens.COLORS['card']['text'])
+            surface.blit(text_surface, (x + 8, y + 8))
         except:
-            # 如果渲染失败，显示卡牌ID
-            text = font.render(f"Card {card.id}", True, self.tokens.COLORS['card']['text'])
-            surface.blit(text, (x + 8, y + 8))
+            # 如果安全渲染失败，显示卡牌ID
+            try:
+                id_surface = render_text_safely(f"Card {card.id}", 16, self.tokens.COLORS['card']['text'])
+                surface.blit(id_surface, (x + 8, y + 8))
+            except:
+                # 最后的降级选项
+                try:
+                    font = pygame.font.Font(None, 16)
+                    text = font.render(f"C{card.id}", True, self.tokens.COLORS['card']['text'])
+                    surface.blit(text, (x + 8, y + 8))
+                except:
+                    pass  # 如果所有渲染都失败，跳过名称显示
 
     def render_card_cost(self, surface: pygame.Surface,
                         card: Card, position: Tuple[int, int]) -> None:
@@ -142,26 +151,49 @@ class CardRenderer:
         cost_center = (x + self.card_width - 20, y + 20)
         pygame.draw.circle(surface, self.tokens.COLORS['mana']['blue'], cost_center, 15)
 
-        # 费用文字
-        font = pygame.font.Font(None, 20)
-        cost_text = font.render(str(card.cost), True, (255, 255, 255))
-        cost_rect = cost_text.get_rect(center=cost_center)
-        surface.blit(cost_text, cost_rect)
+        # 费用文字（使用安全文本渲染）
+        try:
+            cost_surface = render_text_safely(str(card.cost), 20, (255, 255, 255))
+            cost_rect = cost_surface.get_rect(center=cost_center)
+            surface.blit(cost_surface, cost_rect)
+        except Exception as e:
+            # 降级到最简单的文本渲染
+            try:
+                font = pygame.font.Font(None, 20)
+                cost_text = font.render(str(card.cost), True, (255, 255, 255))
+                cost_rect = cost_text.get_rect(center=cost_center)
+                surface.blit(cost_text, cost_rect)
+            except:
+                pass  # 如果所有渲染都失败，跳过费用显示
 
     def render_card_stats(self, surface: pygame.Surface,
                          card: Card, position: Tuple[int, int]) -> None:
         """渲染卡牌属性（攻击力/生命值）"""
         x, y = position
-        font = pygame.font.Font(None, 18)
 
-        # 攻击力（左下角）
-        attack_text = font.render(str(card.attack), True, (0, 0, 0))
-        surface.blit(attack_text, (x + 8, y + self.card_height - 25))
+        try:
+            # 攻击力（左下角）
+            attack_surface = render_text_safely(str(card.attack), 18, (0, 0, 0))
+            surface.blit(attack_surface, (x + 8, y + self.card_height - 25))
 
-        # 生命值（右下角）
-        health_color = self.get_health_color(card.health)
-        health_text = font.render(str(card.health), True, health_color)
-        surface.blit(health_text, (x + self.card_width - 25, y + self.card_height - 25))
+            # 生命值（右下角）
+            health_color = self.get_health_color(card.health)
+            health_surface = render_text_safely(str(card.health), 18, health_color)
+            surface.blit(health_surface, (x + self.card_width - 25, y + self.card_height - 25))
+        except Exception as e:
+            # 降级到最简单的文本渲染
+            try:
+                font = pygame.font.Font(None, 18)
+                # 攻击力（左下角）
+                attack_text = font.render(str(card.attack), True, (0, 0, 0))
+                surface.blit(attack_text, (x + 8, y + self.card_height - 25))
+
+                # 生命值（右下角）
+                health_color = self.get_health_color(card.health)
+                health_text = font.render(str(card.health), True, health_color)
+                surface.blit(health_text, (x + self.card_width - 25, y + self.card_height - 25))
+            except:
+                pass  # 如果所有渲染都失败，跳过属性显示
 
     def render_card_abilities(self, surface: pygame.Surface,
                             card: Card, position: Tuple[int, int]) -> None:
@@ -181,13 +213,13 @@ class CardRenderer:
         }
 
         skill_index = 0
-        font = pygame.font.Font(None, 14)
 
         for skill, (icon, color) in skill_icons.items():
             if hasattr(card, skill) and getattr(card, skill):
                 try:
-                    text = font.render(icon, True, color)
-                    surface.blit(text, (skill_x + skill_index * skill_spacing, skill_y))
+                    # 使用安全文本渲染emoji
+                    skill_surface = render_text_safely(icon, 14, color)
+                    surface.blit(skill_surface, (skill_x + skill_index * skill_spacing, skill_y))
                     skill_index += 1
                 except:
                     # 如果emoji渲染失败，使用文字替代
@@ -198,9 +230,19 @@ class CardRenderer:
                         'charge': 'C',
                         'stealth': 'S',
                     }
-                    text = font.render(text_map.get(skill, '?'), True, color)
-                    surface.blit(text, (skill_x + skill_index * skill_spacing, skill_y))
-                    skill_index += 1
+                    try:
+                        fallback_surface = render_text_safely(text_map.get(skill, '?'), 14, color)
+                        surface.blit(fallback_surface, (skill_x + skill_index * skill_spacing, skill_y))
+                        skill_index += 1
+                    except:
+                        # 最后的降级选项
+                        try:
+                            font = pygame.font.Font(None, 14)
+                            text = font.render(text_map.get(skill, '?'), True, color)
+                            surface.blit(text, (skill_x + skill_index * skill_spacing, skill_y))
+                            skill_index += 1
+                        except:
+                            pass  # 如果所有渲染都失败，跳过该技能图标
 
     def render_card_border(self, surface: pygame.Surface,
                           card: Card, position: Tuple[int, int],

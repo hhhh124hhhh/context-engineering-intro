@@ -54,7 +54,15 @@
       "Bash(apt:*)",
       "Bash(wget:*)",
       "Bash(~/.local/bin/pip:*)",
-      "Bash(~/.local/bin/python3:*)"
+      "Bash(~/.local/bin/python3:*)",
+      "Bash(./backend/venv/bin/python3:*)",
+      "Bash(./backend/venv/bin/pip:*)",
+      "Bash(backend/venv/bin/python3:*)",
+      "Bash(./scripts/start_game.sh:*)",
+      "Bash(bash:*)",
+      "Bash(timeout:*)",
+      "Bash(fc-list:*)",
+      "Read(//usr/share/fonts/**)"
     ],
     "deny": []
   }

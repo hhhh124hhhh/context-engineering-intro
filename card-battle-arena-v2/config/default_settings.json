@@ -1,0 +1,21 @@
+{
+  "window_width": 1200,
+  "window_height": 800,
+  "fps": 60,
+  "fullscreen": false,
+  "vsync": true,
+  "ai_thinking_time": 1.5,
+  "ai_difficulty": "normal",
+  "ai_personality": "balanced",
+  "max_turns": 15,
+  "turn_time_limit": 30,
+  "sound_enabled": true,
+  "music_volume": 0.7,
+  "sfx_volume": 0.8,
+  "debug_mode": false,
+  "verbose_logging": false,
+  "show_fps": false,
+  "assets_path": "assets",
+  "logs_path": "logs",
+  "saves_path": "saves"
+}

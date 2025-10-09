@@ -5,6 +5,7 @@
 import pygame
 from typing import Tuple, Optional, Callable
 from app.visualization.design.tokens import DesignTokens
+from app.visualization.font_manager import render_text_safely
 
 
 class Button:
@@ -35,8 +36,8 @@ class Button:
         self.pressed = False
         self.enabled = True
 
-        # 字体
-        self.font = pygame.font.Font(None, self.tokens.TYPOGRAPHY['button'])
+        # 字体（使用安全渲染，无需初始化字体对象）
+        self.font_size = self.tokens.TYPOGRAPHY['button']
 
         # 矩形区域
         self.rect = pygame.Rect(position, size)
@@ -68,10 +69,20 @@ class Button:
         border_color = self.tokens.adjust_brightness(bg_color, 0.8)
         pygame.draw.rect(self.surface, border_color, self.rect, 2, border_radius=4)
 
-        # 绘制文字
-        text_surface = self.font.render(self.text, True, text_color)
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        self.surface.blit(text_surface, text_rect)
+        # 绘制文字（使用安全文本渲染）
+        try:
+            text_surface = render_text_safely(self.text, self.font_size, text_color)
+            text_rect = text_surface.get_rect(center=self.rect.center)
+            self.surface.blit(text_surface, text_rect)
+        except Exception as e:
+            # 降级到最简单的文本渲染
+            try:
+                font = pygame.font.Font(None, self.font_size)
+                text_surface = font.render(self.text, True, text_color)
+                text_rect = text_surface.get_rect(center=self.rect.center)
+                self.surface.blit(text_surface, text_rect)
+            except:
+                pass  # 如果所有渲染都失败，跳过文本显示
 
     def handle_click(self, pos: Tuple[int, int]) -> bool:
         """
@@ -151,8 +162,8 @@ class HealthBar:
         # 矩形区域
         self.rect = pygame.Rect(position, size)
 
-        # 字体
-        self.font = pygame.font.Font(None, 14)
+        # 字体（使用安全渲染，无需初始化字体对象）
+        self.font_size = 14
 
     def set_health(self, current: int, maximum: int = None) -> None:
         """
@@ -192,11 +203,22 @@ class HealthBar:
         # 绘制边框
         pygame.draw.rect(self.surface, (32, 32, 32), self.rect, 2, border_radius=3)
 
-        # 绘制血量文字
-        health_text = f"{self.current_health}/{self.max_health}"
-        text_surface = self.font.render(health_text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        self.surface.blit(text_surface, text_rect)
+        # 绘制血量文字（使用安全文本渲染）
+        try:
+            health_text = f"{self.current_health}/{self.max_health}"
+            text_surface = render_text_safely(health_text, self.font_size, (255, 255, 255))
+            text_rect = text_surface.get_rect(center=self.rect.center)
+            self.surface.blit(text_surface, text_rect)
+        except Exception as e:
+            # 降级到最简单的文本渲染
+            try:
+                font = pygame.font.Font(None, self.font_size)
+                health_text = f"{self.current_health}/{self.max_health}"
+                text_surface = font.render(health_text, True, (255, 255, 255))
+                text_rect = text_surface.get_rect(center=self.rect.center)
+                self.surface.blit(text_surface, text_rect)
+            except:
+                pass  # 如果所有渲染都失败，跳过文本显示
 
     def get_current_health(self) -> int:
         """获取当前血量"""
@@ -230,8 +252,8 @@ class ManaCrystal:
         self.current_mana = max_mana
         self.tokens = DesignTokens()
 
-        # 字体
-        self.font = pygame.font.Font(None, 16)
+        # 字体（使用安全渲染，无需初始化字体对象）
+        self.font_size = 16
 
     def set_mana(self, current: int, maximum: int = None) -> None:
         """
@@ -273,9 +295,19 @@ class ManaCrystal:
 
     def render_text(self) -> None:
         """渲染法力值文字"""
-        mana_text = f"法力值: {self.current_mana}/{self.max_mana}"
-        text_surface = self.font.render(mana_text, True, self.tokens.COLORS['ui']['text'])
-        self.surface.blit(text_surface, (self.position[0], self.position[1] - 25))
+        try:
+            mana_text = f"法力值: {self.current_mana}/{self.max_mana}"
+            text_surface = render_text_safely(mana_text, self.font_size, self.tokens.COLORS['ui']['text'])
+            self.surface.blit(text_surface, (self.position[0], self.position[1] - 25))
+        except Exception as e:
+            # 降级到最简单的文本渲染
+            try:
+                font = pygame.font.Font(None, self.font_size)
+                mana_text = f"法力值: {self.current_mana}/{self.max_mana}"
+                text_surface = font.render(mana_text, True, self.tokens.COLORS['ui']['text'])
+                self.surface.blit(text_surface, (self.position[0], self.position[1] - 25))
+            except:
+                pass  # 如果所有渲染都失败，跳过文本显示
 
     def get_current_mana(self) -> int:
         """获取当前法力值"""
@@ -342,12 +374,22 @@ class ProgressBar:
         # 绘制边框
         pygame.draw.rect(self.surface, (32, 32, 32), self.rect, 2, border_radius=3)
 
-        # 绘制百分比文字
-        percentage_text = f"{int(self.progress * 100)}%"
-        font = pygame.font.Font(None, 12)
-        text_surface = font.render(percentage_text, True, (255, 255, 255))
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        self.surface.blit(text_surface, text_rect)
+        # 绘制百分比文字（使用安全文本渲染）
+        try:
+            percentage_text = f"{int(self.progress * 100)}%"
+            text_surface = render_text_safely(percentage_text, 12, (255, 255, 255))
+            text_rect = text_surface.get_rect(center=self.rect.center)
+            self.surface.blit(text_surface, text_rect)
+        except Exception as e:
+            # 降级到最简单的文本渲染
+            try:
+                font = pygame.font.Font(None, 12)
+                percentage_text = f"{int(self.progress * 100)}%"
+                text_surface = font.render(percentage_text, True, (255, 255, 255))
+                text_rect = text_surface.get_rect(center=self.rect.center)
+                self.surface.blit(text_surface, text_rect)
+            except:
+                pass  # 如果所有渲染都失败，跳过文本显示
 
     def get_progress(self) -> float:
         """获取当前进度"""
